@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Html5移动应用开发</title>
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Develop Mobile App with Html5</h1>
+					<img style="height:200px;" src="http://a.hiphotos.baidu.com/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26%3Bt%3Dgif/sign=39a989de6e81800a7ae8815cd05c589f/63d0f703918fa0ece00b145c249759ee3c6ddb97.jpg">
+					<p>
+						<small>Created by <a href="http://zhaishidan.cn" target="_blank">Stan Zhai</a></small>
+					</p>
+				</section>
+
+				<section>
+					<h2>移动应用开发模式</h2>
+					<ul>
+						<li>Native App</li>
+						<li>Web App</li>
+						<li>Hybrid App</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>关于Html5</h2>
+					<ul>
+						<li>2004年被WHATWG提出，前身名为 Web Applications 1.0</li>
+						<li>2008年，第一份正式草案公布</li>
+						<li>2012年，W3C正式定稿Html5规范</li>
+						<li>2013年，Html 5.1正式公布草案</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Html5特性</h2>
+					<ul>
+						<li>更好的语义</li>
+						<li>本地存储</li>
+						<li>设备兼容</li>
+						<li>Websocket</li>
+						<li>更丰富的多媒体：摄像头、Audio、Video等</li>
+						<li>SVG，WebGL，Canvas</li>
+						<li>CSS 3</li>
+						<li>性能与集成特性：XMLHttpRequest2</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Html5在移动应用中的优势</h2>
+					<ul>
+						<li>跨平台</li>
+						<li>自适应——响应式设计</li>
+						<li>即时更新</li>
+						<li>直接在浏览器中调试修改</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>一些实例</h3>
+				</section>
+
+				<section>
+					<section>
+						<img src="img/sy.png">
+					</section>
+					<section>
+						<img src="img/cyou-auth.png">
+					</section>
+					<section>
+						<img src="img/yysq1.png">
+					</section>
+					<section>
+						<img src="img/yysq2.png">
+					</section>
+				</section>
+
+				<section>
+					<h3>Html5在运营神器中的应用</h3>
+				</section>				
+
+				<section data-markdown>
+					<script type="text/template">
+						## 设备检测
+
+						- 后端根据User-Agent请求头检测
+						- nodejs，第三方模块：mobile-agent
+
+						```
+						var ua      = require('mobile-agent');
+
+						app.get('/', function(req, res) {
+						    var agent = ua(req.headers['user-agent'])
+
+						    if(agent.Mobile === true) {
+						        res.render('mobile', {
+						            foo: 'bar'
+						        });
+						    } else {
+						        res.render('desktop', {
+						            foo: 'bar'
+						        });
+						    }
+						});
+						```
+					</script>
+				</section>		
+
+				<section data-markdown>
+					<script type="text/template">
+						## 标签+CSS（UI库）
+
+						- jQuery-mobile:简单易用
+						- Zepto.js：轻量级，可替代jQuery-mobile
+					</script>
+				</section>	
+
+				<section data-markdown>
+					<script type="text/template">
+						## Websocket
+
+						- nodejs: socket.io
+						- Java: comet4j
+
+						![](img/ws.png)
+					</script>
+				</section>	
+
+				<section data-markdown>
+					<script type="text/template">
+						## 前端调试
+
+						各大主流的现代化浏览器：Chrome，Firefox，IE9+
+					</script>
+				</section>	
+
+				<section>
+					<img src="img/1.png"/>
+				</section>		
+
+				<section>
+					<img src="img/2.png"/>
+				</section>	
+
+				<section data-markdown>
+					<script type="text/template">
+						## 横向管理工作
+
+						回顾和检查工作 6 个标准的模式
+
+						我们必须首先搞懂我们的工作到底是什么。至少可以从 6 个不同的角度加以衡量。我们可以高度的概念进行类比
+
+						1. 5 万英尺以上：生活 
+						2. 4 万英尺：3~5 年的展望 
+						3. 3 万英尺：1~2 年的目标 
+						4. 2 万英尺：责任范围 
+						5. 1 万英尺：当前的工作 
+						6. 跑道：目前的行动 
+					</script>
+				</section>		
+
+
+
+				<section data-markdown>
+					<script type="text/template">
+						## 强化“纵向”工作重心.
+
+						1. 强化某一项工作，保行动方案切实可行，
+						2. 把预期的成效融入你个人的管理体系之中，运用“纵向”思维提高工作效率
+					</script>
+				</section>	
+				
+				<section data-markdown>
+					<script type="text/template">
+						## 人的大脑只有经过5个步骤才能够完成任何一项任务
+
+						1. 定义目标和原则 
+						2. 展望成果 
+						3. 集思广益 
+						4. 组织管理　
+						5. 明确下一步的行动方案
+					</script>
+				</section>					
+				
+
+
+				<section data-markdown>
+					<script type="text/template">
+						## GTD工具/"工作篮"
+
+						- 便签
+						- Outlook Tasks
+						- Doit.im
+						- Any.Do
+						- Wunderlist
+						- 成功GTD时间管理
+						- 番茄时钟
+					</script>
+				</section>			
+
+				<section>
+					<img src="img/tasks_ol.png" />
+				</section>			
+
+				<section>
+					<img src="img/tasks.PNG" />
+				</section>			
+
+				<section>
+					<h2>更重要的是：关注结果!</h2>
+				</section>					
+
+				<section data-markdown>
+					<script type="text/template">
+						## Discuss
+
+						- 你的GTD工具是什么？
+						- 你在团队工作中是如何高效协作的？
+					</script>
+				</section>				
+
+				<section data-markdown>
+					<script type="text/template">
+						- 最幸福快乐的人是那些尽力而为的人
+						- 希望我们都能达到“心静如水”的至高境界
+						- 远离压力，提高效率
+					</script>
+				</section>		
+
+				<section>
+					<h2>Html5在移动应用中的问题</h2>
+					<ul>
+						<li>跨平台</li>
+						<li>自适应——响应式设计</li>
+						<li>即时更新</li>
+						<li>直接在浏览器中调试修改</li>
+					</ul>
+				</section>
+				
+				<section data-markdown>
+					<script type="text/template">
+						## The End
+						### BY Stan Zhai
+					</script>
+				</section>		
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
