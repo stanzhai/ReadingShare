@@ -81,9 +81,19 @@
 				</section>
 
 				<section>
+					<h2>Html5应用场景</h2>
+					<ul>
+						<li>Web开发</li>
+						<li>移动应用</li>
+						<li>PC Native App</li>
+						<li>...</li>
+					</ul>
+				</section>
+
+				<section>
 					<h2>Html5在移动应用中的优势</h2>
 					<ul>
-						<li>跨平台</li>
+						<li>跨平台，低门槛</li>
 						<li>自适应——响应式设计</li>
 						<li>即时更新</li>
 						<li>直接在浏览器中调试修改</li>
@@ -96,6 +106,15 @@
 
 				<section>
 					<section>
+						<h3>相关技术：libcef</h3>
+						<img src="img/mobogenie.png">
+					</section>
+					<section>
+						<h3>相关技术：node-webkit</h3>
+						<img src="img/mw.png">
+					</section>
+					<section>
+						<h3>Chrome应用商店</h3>
 						<img src="img/sy.png">
 					</section>
 					<section>
@@ -115,7 +134,17 @@
 
 				<section data-markdown>
 					<script type="text/template">
-						## 设备检测
+						## 互操作
+						### 文章详情查看原始大图
+
+						- iOS：WebViewJavascriptBridge（Obj-C and Javascript）
+						- Android：WebView的addJavascriptInterface（Java and Javascript）
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						## 浏览器设备检测
 
 						- 后端根据User-Agent请求头检测
 						- nodejs，第三方模块：mobile-agent
@@ -142,16 +171,18 @@
 
 				<section data-markdown>
 					<script type="text/template">
-						## 标签+CSS（UI库）
+						## Html5 移动开发工具包
 
 						- jQuery-mobile:简单易用
 						- Zepto.js：轻量级，可替代jQuery-mobile
+						- Sencha Touch
+						- dojox.mobile
 					</script>
 				</section>	
 
 				<section data-markdown>
 					<script type="text/template">
-						## Websocket
+						## Websocket实时推送
 
 						- nodejs: socket.io
 						- Java: comet4j
@@ -172,13 +203,16 @@
 					</script>
 				</section>	
 
-				<section>
-					<img src="img/1.png"/>
-				</section>		
+				<section data-markdown>
+					<script type="text/template">
+						## Hybrid App开发工具
 
-				<section>
-					<img src="img/2.png"/>
-				</section>	
+						使用Html5开发跨平台的本地应用
+
+						- PhoneGap
+						- Titanium
+					</script>
+				</section>		
 
 				<section data-markdown>
 					<script type="text/template">
@@ -190,10 +224,10 @@
 				<section>
 					<h2>Html5在移动应用中的问题</h2>
 					<ul>
-						<li>跨平台</li>
-						<li>自适应——响应式设计</li>
-						<li>即时更新</li>
-						<li>直接在浏览器中调试修改</li>
+						<li>性能，UI延迟，CSS3动画效率</li>
+						<li>多窗口支持不好</li>
+						<li>WebView资源占用</li>
+						<li>兼容性，ifream不支持height，css样式</li>
 					</ul>
 				</section>
 
