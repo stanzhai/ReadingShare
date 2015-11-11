@@ -4,17 +4,20 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>Spark设计与实现</title>
+		<title>reveal.js – The HTML Presentation Framework</title>
 
-		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
 
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/theme/black.css" id="theme">
 
-		<!-- For syntax highlighting -->
+		<!-- Code syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
 
 		<!-- Printing and PDF exports -->
@@ -29,6 +32,16 @@
 		<!--[if lt IE 9]>
 		<script src="lib/js/html5shiv.js"></script>
 		<![endif]-->
+
+		<style type="text/css">
+		.reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+			text-align: left;
+			text-transform: none;
+		}
+		.reveal ul {
+		    display: block;
+		}
+		</style>
 	</head>
 
 	<body>
@@ -43,69 +56,458 @@
 						设计与实现
 					</h1>
 					<p>
-						<small>Created by <a href="http://zhaishidan.cn" target="_blank">Stan Zhai</a> <i> (2015-11-11) </i></small>
+						<small>Created by <a href="http://zhaishidan.cn" target="_blank">Stan Zhai</a></small><br/>
+						<small>2015-11-11</small>
 					</p>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-						## TOC
+						## ToC
 
-						- Spark简介
-						- 分布式系统特点
+						- Spark简介 
+						- Spark核心设计 
+						- BDP在Spark上的应用 
 					</script>
 				</section>	
 
 				<section data-markdown>
 					<script type="text/template">
-						## Spark为何这么火
+					## Spark 简介
 
-						- Spark简介
-						- 分布式系统特点
+					- What
+					- Why
 					</script>
 				</section>	
 
+				<section>
+					<section data-markdown>
+						<script type="text/template">
+						### Part of the core distribution since Spark 1.0（April 2014）
+
+						![](img/spark-con.png)
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### What is Spark?
+
+						- A fast and general engine for large-scale data processing
+						- An open source implementation of Resilient Distributed Datasets (RDD)
+						- Has an advanced DAG execution engine that supports cyclic data flow and in-memory computing
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### Why Spark?
+
+						- Fast
+							- Run machine learning like iterative programs up to 100x faster than Hadoop MapReduce in memory or 10x faster on disk
+							- Run HiveQL compatible queries 100x faster than Hive
+
+						![](img/logistic-regression.png)
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### Why Spark?
+
+						- Compatibility
+							- Compatible with most popular storage systems on top of HDFS
+							- New users needn’t suffer ETL to deploy Spark
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### Why Spark?
+
+						- Easy to use
+							- Fluent Scala / Java / Python / R API
+							- Interactive shell
+							- 2-5x less code (than Hadoop MapReduce)
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### Why Spark?
+
+						Word count in Hadoop's MapReduce(71 lines)
+						```
+package org.jediael.hadoopdemo.wordcount;
+
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+public class WordCount {
+
+	public static class WordCountMap extends
+			Mapper<LongWritable, Text, Text, IntWritable> {
+
+		private final IntWritable one = new IntWritable(1);
+		private Text word = new Text();
+
+		public void map(LongWritable key, Text value, Context context)
+				throws IOException, InterruptedException {
+			String line = value.toString();
+			StringTokenizer token = new StringTokenizer(line);
+			while (token.hasMoreTokens()) {
+				word.set(token.nextToken());
+				context.write(word, one);
+			}
+		}
+	}
+
+	public static class WordCountReduce extends
+			Reducer<Text, IntWritable, Text, IntWritable> {
+
+		public void reduce(Text key, Iterable<IntWritable> values,
+				Context context) throws IOException, InterruptedException {
+			int sum = 0;
+			for (IntWritable val : values) {
+				sum += val.get();
+			}
+			context.write(key, new IntWritable(sum));
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		Configuration conf = new Configuration();
+		Job job = new Job(conf);
+		job.setJarByClass(WordCount.class);
+		job.setJobName("wordcount");
+
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(IntWritable.class);
+
+		job.setMapperClass(WordCountMap.class);
+		job.setReducerClass(WordCountReduce.class);
+
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
+
+		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+		job.waitForCompletion(true);
+	}
+}
+						```
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### Why Spark?
+
+						Word count in Spark's Scala API
+						```
+package com.demo
+
+import org.apache.spark.{SparkContext, SparkConf}
+
+object WordCount {
+
+  def main (args: Array[String]){
+    val conf = new SparkConf().setMaster("local").setAppName("WordCount")
+    val sc = new SparkContext(conf)
+    val text = sc.textFile("test.log")
+    val result = text.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_ + _)
+    result.foreach(println)
+    sc.stop()
+  }
+}
+						```
+						</script>
+					</section>
+					<section data-background="img/wu.gif">
+						<h2 style="text-align: center">... 固固的!</h2>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### Why Spark?
+
+						Word count in Spark's Python API
+						```
+from pyspark import SparkContext
+
+
+if __name__ == "__main__":
+    sc = SparkContext(appName="PythonWordCount")
+    lines = sc.textFile("text.log")
+    counts = lines.flatMap(lambda x: x.split(' ')) \
+                  .map(lambda x: (x, 1)) \
+                  .reduceByKey(lambda a, b: a+b)
+    output = counts.collect()
+    for (word, count) in output:
+        print("%s: %i" % (word, count))
+
+    sc.stop()
+    						```
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### Why Spark?
+
+						![](img/spark-stack.png)
+						</script>
+					</section>
+					
+					<section data-markdown>
+						<script type="text/template">
+						### Why Spark?
+
+						- Unified big data analytics pipeline for
+							- Batch (Spark Core vs MR / Tez)
+							- SQL (Spark SQL vs Hive)
+							- Streaming (Spark Streaming vs Storm)
+							- Machine learning (MLlib vs Mahout)
+							- Graph (GraphX vs Giraph)
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### Why Spark?
+
+						Word count in Spark Streaming with Spark SQL
+						```
+// Create the context with a 2 second batch size
+val sparkConf = new SparkConf().setAppName("SqlNetworkWordCount")
+val ssc = new StreamingContext(sparkConf, Seconds(2))
+
+val lines = ssc.socketTextStream("localhost", 8989, StorageLevel.MEMORY_AND_DISK_SER)
+val words = lines.flatMap(_.split(" "))
+
+// Convert RDDs of the words DStream to DataFrame and run SQL query
+words.foreachRDD((rdd: RDD[String], time: Time) => {
+  // Get the singleton instance of SQLContext
+  val sqlContext = SQLContextSingleton.getInstance(rdd.sparkContext)
+  import sqlContext.implicits._
+
+  // Convert RDD[String] to RDD[case class] to DataFrame
+  val wordsDataFrame = rdd.map(w => Record(w)).toDF()
+
+  // Register as table
+  wordsDataFrame.registerTempTable("words")
+
+  // Do word count on table using SQL and print it
+  val wordCountsDataFrame =
+    sqlContext.sql("select word, count(*) as total from words group by word")
+  println(s"========= $time =========")
+  wordCountsDataFrame.show()
+})						
+						```
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+						### Spark
+
+						- 大大降低了开发成本
+						- 统一技术栈，解决了数据共享难题
+						- 极高的兼容性
+						</script>
+					</section>
+				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-						## Spark核心组件
+						## ToC
 
-						- Spark SQL
-						- Spark Streaming
-						- MLlib
-						- GraphX
+						- Spark简介 
+						- Spark核心设计 <!-- .element: style="color: greenyellow" -->
+						- BDP在Spark上的应用 
 					</script>
 				</section>	
 
 				<section data-markdown>
 					<script type="text/template">
-						## Spark
+						## 分布式系统面临的几个问题
 
-						- 应用执行机制
-						- 调度与任务分配
-						- Shuffle
-						- 容错
-						- I/O
-						- RPC
+						- 数据一致性
+						- 可扩展性
+						- 容错处理
+						- 负载均衡
+					</script>
+				</section>	
+				<section data-markdown>
+					<script type="text/template">
+						## Spark核心设计
+
+						- 运行模式
+						- RDD
+						- DAG, Shuffle
+						- RPC、调度与任务分配
+						- 性能监控
+						- HA
+					</script>
+				</section>	
+				<section data-markdown>
+					<script type="text/template">
+						## Spark运行模式
+
+						类Hadoop的Master-Slave模式
+
+						![](img/cluster-overview.png)
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## RDD (Resilient Distributed Datasets)
+
+						- Spark的核心，弹性分布式数据集
+							- 是一个容错的、并行的数据结构
+							- 本质上是：一个只读的分区记录集合
+							- 粗粒度分区操作：转换（ transformation ），动作（actions）
+							- 将数据cache到内存，提供低延迟操作
+						- RDDs are resilient because they have a long lineage
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## RDD代码定义
+
+						```
+// Compute a given partition.
+def compute(split: Partition, context: TaskContext): Iterator[T]
+
+// Return the set of partitions in this RDD 
+protected def getPartitions: Array[Partition]
+
+// Return how this RDD depends on parent RDDs
+protected def getDependencies: Seq[Dependency[_]] = deps
+
+// Specify placement preferences 
+protected def getPreferredLocations(split: Partition): Seq[String] = Nil
+						```
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## RDD解决的问题
+
+						- 一致性：RDD不可变(只读)
+						- 容错性：Lineage重新计算数据，或将RDD持久化
+						- 负载均衡：RDD可以通过任务拷贝，将落后的任务迁移到其他节点
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## RDD的缺陷
+
+						- RDD不适合那些需要异步、细粒度更新状态的应用
+							- Web应用的存储系统
+							- 增量式爬虫系统
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## DAG, Shuffle
+
+						- DAG: 有向无环图，对Job执行逻辑的一种抽象
+						- Shuffle: 需要重新分发数据时触发，如group by，也是Stage的分界点（Spark自动对持久化中间数据）
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## RPC、调度与任务分配
+
+						- 基于Akka的RPC
+						- 代码序列化为ByteArray（字节码）
+
+						![](img/spark-job.jpg)
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## 性能监控
+
+						- Application Web UI
+						- DAG、Event Timeline可视化
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## Spark HA
+
+						- Zookeeper
+						- Curator
 					</script>
 				</section>	
 
 				<section data-markdown>
 					<script type="text/template">
-						## Spark
-						> 如果没有Spark，可能就没有快速发展的BDP
+						## ToC
+
+						- Spark简介 
+						- Spark核心设计 
+						- BDP在Spark上的应用 <!-- .element: style="color: greenyellow" -->
 					</script>
 				</section>	
-
+				<section data-markdown>
+					<script type="text/template">
+						## BDP在Spark上的应用
+						
+						- 每日数据处理情况
+							- Query: 10TB
+							- Write: 300G
+							- 合表：2TB
+							- Jobs: 6W
+					</script>
+				</section>	
+				<section data-markdown>
+					<script type="text/template">
+						## BDP在Spark上的应用
+						
+						- Spark Core + Spark SQL
+						- Spark Standalone + Hive + Hadoop
+					</script>
+				</section>
+				<section data-markdown>
+					<script type="text/template">
+						## BDP在Spark上的应用
+						
+						- 应用模式
+							- 模块：Spark Core + Spark SQL
+							- 架构：Spark Standalone + Hive + Hadoop
+					</script>
+				</section>	
+				<section data-markdown>
+					<script type="text/template">
+						## 挑战
+						
+						- 性能优化
+						- Bugs
+					</script>
+				</section>
 				<section data-markdown>
 					<script type="text/template">
 						## 参考资料
 
+						- [官方文档](http://spark.apache.org/documentation.html)
 						- [RDD：基于内存的集群计算容错抽象](http://shiyanjun.cn/archives/744.html)
+						- [Spark分布式计算和RDD模型研究](http://blog.csdn.net/dc_726/article/details/41381791)
 						- [Spark源码系列](http://www.cnblogs.com/cenyuhai)
 					</script>
 				</section>
 
+				<section data-markdown>
+					<script type="text/template">
+						Q & A <!-- .element: style="font-size: 52px;" -->
+					</script>
+				</section>		
 				<section data-markdown>
 					<script type="text/template">
 						## The End
@@ -129,13 +531,15 @@
 				progress: true,
 				history: true,
 				center: true,
+
 				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
 				// Optional reveal.js plugins
 				dependencies: [
 					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
 					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
 					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
 					{ src: 'plugin/zoom-js/zoom.js', async: true },
 					{ src: 'plugin/notes/notes.js', async: true }
 				]
