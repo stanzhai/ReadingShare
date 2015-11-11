@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>reveal.js – The HTML Presentation Framework</title>
+		<title>Spark设计与实现</title>
 
 		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
 		<meta name="author" content="Hakim El Hattab">
@@ -332,54 +332,55 @@ words.foreachRDD((rdd: RDD[String], time: Time) => {
 					</script>
 				</section>	
 
-				<section data-markdown>
-					<script type="text/template">
-						## 分布式系统面临的几个问题
+				<section>
+					<section data-markdown>
+						<script type="text/template">
+							## 分布式系统面临的几个问题
 
-						- 数据一致性
-						- 可扩展性
-						- 容错处理
-						- 负载均衡
-					</script>
-				</section>	
-				<section data-markdown>
-					<script type="text/template">
-						## Spark核心设计
+							- 数据一致性
+							- 可扩展性
+							- 容错处理
+							- 负载均衡
+						</script>
+					</section>	
+					<section data-markdown>
+						<script type="text/template">
+							## Spark核心设计
 
-						- 运行模式
-						- RDD
-						- DAG, Shuffle
-						- RPC、调度与任务分配
-						- 性能监控
-						- HA
-					</script>
-				</section>	
-				<section data-markdown>
-					<script type="text/template">
-						## Spark运行模式
+							- 运行模式
+							- RDD
+							- DAG, Shuffle
+							- RPC、调度与任务分配
+							- 性能监控
+							- HA
+						</script>
+					</section>	
+					<section data-markdown>
+						<script type="text/template">
+							## Spark运行模式
 
-						类Hadoop的Master-Slave模式
+							类Hadoop的Master-Slave模式
 
-						![](img/cluster-overview.png)
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-						## RDD (Resilient Distributed Datasets)
+							![](img/cluster-overview.png)
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## RDD (Resilient Distributed Datasets)
 
-						- Spark的核心，弹性分布式数据集
-							- 是一个容错的、并行的数据结构
-							- 本质上是：一个只读的分区记录集合
-							- 粗粒度分区操作：转换（ transformation ），动作（actions）
-							- 将数据cache到内存，提供低延迟操作
-						- RDDs are resilient because they have a long lineage
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-						## RDD代码定义
+							- Spark的核心，弹性分布式数据集
+								- 是一个容错的、并行的数据结构
+								- 本质上是：一个只读的分区记录集合
+								- 粗粒度分区操作：转换（ transformation ），动作（actions）
+								- 将数据cache到内存，提供低延迟操作
+							- RDDs are resilient because they have a long lineage
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## RDD代码定义
 
-						```
+							```
 // Compute a given partition.
 def compute(split: Partition, context: TaskContext): Iterator[T]
 
@@ -391,61 +392,62 @@ protected def getDependencies: Seq[Dependency[_]] = deps
 
 // Specify placement preferences 
 protected def getPreferredLocations(split: Partition): Seq[String] = Nil
-						```
-					</script>
+							```
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## RDD解决的问题
+
+							- 一致性：RDD不可变(只读)
+							- 容错性：Lineage重新计算数据，或将RDD持久化
+							- 负载均衡：RDD可以通过任务拷贝，将落后的任务迁移到其他节点
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## RDD的缺陷
+
+							- RDD不适合那些需要异步、细粒度更新状态的应用
+								- Web应用的存储系统
+								- 增量式爬虫系统
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## DAG, Shuffle
+
+							- DAG: 有向无环图，对Job执行逻辑的一种抽象
+							- Shuffle: 需要重新分发数据时触发，如group by，也是Stage的分界点（Spark自动对持久化中间数据）
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## RPC、调度与任务分配
+
+							- 基于Akka的RPC
+							- 代码序列化为ByteArray（字节码）
+
+							![](img/spark-job.jpg)
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## 性能监控
+
+							- Application Web UI
+							- DAG、Event Timeline可视化
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## Spark HA
+
+							- Zookeeper
+							- Curator
+						</script>
+					</section>	
 				</section>
-				<section data-markdown>
-					<script type="text/template">
-						## RDD解决的问题
-
-						- 一致性：RDD不可变(只读)
-						- 容错性：Lineage重新计算数据，或将RDD持久化
-						- 负载均衡：RDD可以通过任务拷贝，将落后的任务迁移到其他节点
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-						## RDD的缺陷
-
-						- RDD不适合那些需要异步、细粒度更新状态的应用
-							- Web应用的存储系统
-							- 增量式爬虫系统
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-						## DAG, Shuffle
-
-						- DAG: 有向无环图，对Job执行逻辑的一种抽象
-						- Shuffle: 需要重新分发数据时触发，如group by，也是Stage的分界点（Spark自动对持久化中间数据）
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-						## RPC、调度与任务分配
-
-						- 基于Akka的RPC
-						- 代码序列化为ByteArray（字节码）
-
-						![](img/spark-job.jpg)
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-						## 性能监控
-
-						- Application Web UI
-						- DAG、Event Timeline可视化
-					</script>
-				</section>
-				<section data-markdown>
-					<script type="text/template">
-						## Spark HA
-
-						- Zookeeper
-						- Curator
-					</script>
-				</section>	
 
 				<section data-markdown>
 					<script type="text/template">
@@ -456,42 +458,46 @@ protected def getPreferredLocations(split: Partition): Seq[String] = Nil
 						- BDP在Spark上的应用 <!-- .element: style="color: greenyellow" -->
 					</script>
 				</section>	
-				<section data-markdown>
-					<script type="text/template">
-						## BDP在Spark上的应用
-						
-						- 每日数据处理情况
-							- Query: 10TB
-							- Write: 300G
-							- 合表：2TB
-							- Jobs: 6W
-					</script>
-				</section>	
-				<section data-markdown>
-					<script type="text/template">
-						## BDP在Spark上的应用
-						
-						- Spark Core + Spark SQL
-						- Spark Standalone + Hive + Hadoop
-					</script>
+
+				<section>
+					<section data-markdown>
+						<script type="text/template">
+							## BDP在Spark上的应用
+							
+							- 每日数据处理情况
+								- Query: 10TB
+								- Write: 300G
+								- 合表：2TB
+								- Jobs: 6W
+						</script>
+					</section>	
+					<section data-markdown>
+						<script type="text/template">
+							## BDP在Spark上的应用
+							
+							- Spark Core + Spark SQL
+							- Spark Standalone + Hive + Hadoop
+						</script>
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							## BDP在Spark上的应用
+							
+							- 应用模式
+								- 模块：Spark Core + Spark SQL
+								- 架构：Spark Standalone + Hive + Hadoop
+						</script>
+					</section>	
+					<section data-markdown>
+						<script type="text/template">
+							## 挑战
+							
+							- 性能优化
+							- Bugs
+						</script>
+					</section>
 				</section>
-				<section data-markdown>
-					<script type="text/template">
-						## BDP在Spark上的应用
-						
-						- 应用模式
-							- 模块：Spark Core + Spark SQL
-							- 架构：Spark Standalone + Hive + Hadoop
-					</script>
-				</section>	
-				<section data-markdown>
-					<script type="text/template">
-						## 挑战
-						
-						- 性能优化
-						- Bugs
-					</script>
-				</section>
+
 				<section data-markdown>
 					<script type="text/template">
 						## 参考资料
