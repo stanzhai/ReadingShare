@@ -11,3 +11,5 @@
 [Effective-Programming:More Than Writing Code](http://stanzhai.github.io/ReadingShare/Effective-Programming.html)
 
 [创新与企业家精神](http://stanzhai.github.io/ReadingShare/Innovation-Enterpreneurship)
+
+[麦肯锡工作法](http://stanzhai.github.io/ReadingShare/McKinsey-Working.html)
